@@ -1,0 +1,46 @@
+{
+  "name": "blrpost",
+  "version": "0.0.1",
+  "description": "Post screenshots and stuff to Tumblr.",
+  "author": "shaunandrews",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node electron-start.js",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder",
+    "build": "electron-builder --mac --x64 --arm64 --dir"
+  },
+  "devDependencies": {
+    "electron": "^32.1.1",
+    "electron-builder": "^24.6.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "electron-store": "^10.0.0",
+    "oauth": "^0.10.0"
+  },
+  "build": {
+    "appId": "com.shaunandrews.blrpost",
+    "productName": "BlrPost",
+    "mac": {
+      "category": "public.app-category.social-networking",
+      "icon": "icon.icns",
+      "target": "dir"
+    },
+    "files": [
+      "**/*",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
+    ]
+  }
+}
