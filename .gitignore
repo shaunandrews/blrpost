@@ -1,0 +1,19 @@
+# macOS system files
+.DS_Store
+
+# Node modules
+node_modules/
+
+# Electron build output
+dist/
+build/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# IDE-specific files
+.vscode/
+.idea/
