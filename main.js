@@ -1,16 +1,20 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
+import Store from "electron-store";
 import {
   authenticate,
   authenticateWithStoredCredentials,
   getStoredUserInfo,
+  uploadPost,
 } from "./auth.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import fetch from "node-fetch";
+import { logout } from './auth.js';
 
+const store = new Store();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 let mainWindow;
 
 function createWindow() {
@@ -18,31 +22,27 @@ function createWindow() {
     width: 800,
     height: 600,
     webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true,
+      preload: path.join(__dirname, "preload.js"),
     },
-    icon: path.join(__dirname, "assets", "icon.png"),
   });
 
   // Set Content Security Policy
-  mainWindow.webContents.session.webRequest.onHeadersReceived(
-    (details, callback) => {
-      callback({
-        responseHeaders: {
-          ...details.responseHeaders,
-          "Content-Security-Policy": [
-            "default-src 'self';" +
-              "script-src 'self';" +
-              "style-src 'self' 'unsafe-inline';" +
-              "img-src 'self' https://*.tumblr.com https://*.media.tumblr.com data:;" +
-              "connect-src 'self' https://api.tumblr.com;",
-          ],
-        },
-      });
-    }
-  );
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': [
+          "default-src 'self' https://*.tumblr.com; " +
+          "script-src 'self' https://*.tumblr.com; " +
+          "style-src 'self' 'unsafe-inline' https://*.tumblr.com; " +
+          "img-src 'self' data: https://*.tumblr.com; " +
+          "connect-src 'self' https://*.tumblr.com;"
+        ]
+      }
+    })
+  });
 
   mainWindow.loadFile("index.html");
 
@@ -83,7 +83,26 @@ function createWindow() {
         );
       });
   });
+
+  // Handle logout request
+  ipcMain.on("logout", (event) => {
+    logout();
+    mainWindow.webContents.send("logout-success");
+  });
 }
+
+ipcMain.handle("upload-post", async (event, formData) => {
+  console.log("Received upload-post request");
+  console.log("Current blog identifier:", store.get("blogIdentifier"));
+  try {
+    const result = await uploadPost(formData);
+    console.log("Upload result:", result);
+    return result;
+  } catch (error) {
+    console.error("Error in upload-post handler:", error);
+    return { success: false, error: error.message };
+  }
+});
 
 app.whenReady().then(createWindow);
 

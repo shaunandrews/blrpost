@@ -18,6 +18,32 @@
       <div id="userInfo" style="display: none">
         <img id="avatar" alt="User avatar" />
         <p>Welcome, <span id="username"></span>!</p>
+        <button id="logoutButton">Logout</button>
+
+        <!-- File upload section -->
+        <input
+          type="file"
+          id="fileInput"
+          style="margin-top: 20px"
+          accept="image/*"
+        />
+
+        <!-- This will appear after the file is selected -->
+        <div id="postSection" style="display: none">
+          <textarea
+            id="postText"
+            placeholder="Optional: Add text to include in your post"
+          ></textarea>
+          <button id="uploadButton">Upload Post</button>
+        </div>
+
+        <!-- Loading indicator -->
+        <div id="loading" style="display: none">Uploading...</div>
+
+        <!-- View your post button (hidden by default) -->
+        <button id="viewPostButton" style="display: none">
+          View your post
+        </button>
       </div>
 
       <div id="errorMessage" style="color: red; display: none"></div>

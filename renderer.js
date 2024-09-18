@@ -7,6 +7,77 @@ document.addEventListener("DOMContentLoaded", () => {
   const username = document.getElementById("username");
   const errorMessage = document.getElementById("errorMessage");
 
+  // New variables
+  const fileInput = document.getElementById("fileInput");
+  const postSection = document.getElementById("postSection");
+  const postText = document.getElementById("postText");
+  const uploadButton = document.getElementById("uploadButton");
+  const loading = document.getElementById("loading");
+  const viewPostButton = document.getElementById("viewPostButton");
+
+  let selectedFile = null;
+  let postUrl = "";
+
+  // Handle file selection
+  fileInput.addEventListener("change", (event) => {
+    selectedFile = event.target.files[0];
+    if (selectedFile) {
+      postSection.style.display = "block";
+    }
+  });
+
+  // Handle post upload
+  uploadButton.addEventListener("click", () => {
+    if (!selectedFile) {
+      showError("Please select an image to upload.");
+      return;
+    }
+
+    const textContent = postText.value || "";
+    uploadPost(selectedFile, textContent);
+  });
+
+  // Upload post function
+  function uploadPost(file, text) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const base64Image = event.target.result.split(',')[1];
+      const postData = {
+        type: "photo",
+        caption: text || "",
+        data64: base64Image
+      };
+
+      loading.style.display = "block";
+      postSection.style.display = "none";
+
+      window.api.uploadPost(postData)
+        .then((response) => {
+          loading.style.display = "none";
+          if (response.success) {
+            postUrl = response.url;
+            viewPostButton.style.display = "block";
+          } else {
+            showError("Failed to upload post: " + response.error);
+            postSection.style.display = "block";
+          }
+        })
+        .catch((error) => {
+          loading.style.display = "none";
+          showError("Error uploading post: " + error.message);
+          postSection.style.display = "block";
+        });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // Open post in default browser
+  viewPostButton.addEventListener("click", () => {
+    if (postUrl) {
+      window.api.openExternal(postUrl);
+    }
+  });
+
   function showUserInfo(user) {
     console.log("Showing user info:", JSON.stringify(user, null, 2));
     if (!authSection || !userInfo || !avatar || !username) {
@@ -85,5 +156,19 @@ document.addEventListener("DOMContentLoaded", () => {
   window.api.onAuthRequired(() => {
     console.log("Auth required");
     showAuthButton();
+  });
+
+  const logoutButton = document.getElementById("logoutButton");
+
+  logoutButton.addEventListener("click", () => {
+    window.api.logout();
+  });
+
+  window.api.onLogoutSuccess(() => {
+    userInfo.style.display = "none";
+    authSection.style.display = "block";
+    // Clear any displayed user data
+    document.getElementById("username").textContent = "";
+    document.getElementById("avatar").src = "";
   });
 });
