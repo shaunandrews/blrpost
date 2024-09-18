@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("api", {
+  getStoredUserInfo: () => ipcRenderer.invoke("get-stored-user-info"),
   startAuth: () => ipcRenderer.send("start-auth"),
   onAuthSuccess: (callback) =>
     ipcRenderer.on("auth-success", (_, user) => callback(user)),

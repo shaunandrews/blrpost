@@ -162,6 +162,7 @@ function authenticate(mainWindow) {
   });
 }
 
+
 function checkStoredCredentials() {
   const accessToken = store.get("oauthAccessToken");
   const accessTokenSecret = store.get("oauthAccessTokenSecret");
@@ -176,6 +177,8 @@ function authenticateWithStoredCredentials(mainWindow) {
     if (credentials) {
       getUserInfo(credentials.accessToken, credentials.accessTokenSecret)
         .then((userInfo) => {
+          // Store user info in the electron-store
+          store.set("userInfo", userInfo);
           mainWindow.webContents.send("auth-success", userInfo);
           resolve(userInfo);
         })
@@ -188,6 +191,7 @@ function authenticateWithStoredCredentials(mainWindow) {
           // Clear invalid credentials
           store.delete("oauthAccessToken");
           store.delete("oauthAccessTokenSecret");
+          store.delete("userInfo");
           reject(error);
         });
     } else {
@@ -197,4 +201,8 @@ function authenticateWithStoredCredentials(mainWindow) {
   });
 }
 
-export { authenticate, authenticateWithStoredCredentials };
+function getStoredUserInfo() {
+  return store.get("userInfo");
+}
+
+export { authenticate, authenticateWithStoredCredentials, getStoredUserInfo };

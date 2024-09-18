@@ -1,6 +1,10 @@
 import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
-import { authenticate, authenticateWithStoredCredentials } from "./auth.js";
+import {
+  authenticate,
+  authenticateWithStoredCredentials,
+  getStoredUserInfo,
+} from "./auth.js";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 
@@ -42,22 +46,30 @@ function createWindow() {
 
   mainWindow.loadFile("index.html");
 
-  // Try to authenticate with stored credentials on app start
-  authenticateWithStoredCredentials(mainWindow)
-    .then((userInfo) => {
-      if (userInfo) {
-        console.log("Authenticated with stored credentials");
-      } else {
-        console.log("No stored credentials or authentication required");
-      }
-    })
-    .catch((error) => {
-      console.error("Error authenticating with stored credentials:", error);
-      mainWindow.webContents.send(
-        "auth-failure",
-        "Error authenticating with stored credentials"
-      );
+  // Check for stored user info immediately after window creation
+  const storedUserInfo = getStoredUserInfo();
+  if (storedUserInfo) {
+    mainWindow.webContents.on("did-finish-load", () => {
+      mainWindow.webContents.send("auth-success", storedUserInfo);
     });
+  } else {
+    // Try to authenticate with stored credentials on app start
+    authenticateWithStoredCredentials(mainWindow)
+      .then((userInfo) => {
+        if (userInfo) {
+          console.log("Authenticated with stored credentials");
+        } else {
+          console.log("No stored credentials or authentication required");
+        }
+      })
+      .catch((error) => {
+        console.error("Error authenticating with stored credentials:", error);
+        mainWindow.webContents.send(
+          "auth-failure",
+          "Error authenticating with stored credentials"
+        );
+      });
+  }
 
   // Handle manual authentication request
   ipcMain.on("start-auth", () => {
