@@ -13,13 +13,22 @@
           <img id="avatar" alt="User avatar" />
           <p id="username"></p>
         </div>
-        <button id="logoutButton">Logout</button>
+        <button id="logoutButton" class="secondary">Logout</button>
       </header>
 
       <!-- File upload section -->
       <div id="fileSelection">
-        <p>Select a file...</p>
-        <input type="file" id="fileInput" accept="image/*" />
+        <button id="selectFileButton">Select a file...</button>
+        <input
+          type="file"
+          id="fileInput"
+          accept="image/*"
+          style="display: none"
+        />
+        <div id="previewContainer" style="display: none">
+          <img id="filePreview" />
+          <button id="clearFileButton" class="image">Remove image</button>
+        </div>
       </div>
 
       <!-- This will appear after the file is selected -->
@@ -28,7 +37,7 @@
           id="postText"
           placeholder="Optional: Add text to include in your post"
         ></textarea>
-        <button id="uploadButton">Upload Post</button>
+        <button id="uploadButton">Post</button>
       </div>
 
       <!-- Loading indicator -->

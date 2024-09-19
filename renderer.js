@@ -8,9 +8,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const errorMessage = document.getElementById("errorMessage");
 
   // New variables
+  const selectFileButton = document.getElementById("selectFileButton");
   const fileInput = document.getElementById("fileInput");
+  const previewContainer = document.getElementById("previewContainer");
+  const filePreview = document.getElementById("filePreview");
+  const clearFileButton = document.getElementById("clearFileButton");
   const postCreation = document.getElementById("postCreation");
-  const postText = document.getElementById("postText");
   const uploadButton = document.getElementById("uploadButton");
   const loading = document.getElementById("loading");
   const viewPostButton = document.getElementById("viewPostButton");
@@ -18,12 +21,35 @@ document.addEventListener("DOMContentLoaded", () => {
   let selectedFile = null;
   let postUrl = "";
 
+  // Handle select file button click
+  selectFileButton.addEventListener("click", () => {
+    fileInput.click();
+  });
+
   // Handle file selection
   fileInput.addEventListener("change", (event) => {
     selectedFile = event.target.files[0];
     if (selectedFile) {
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        filePreview.src = e.target.result;
+        previewContainer.style.display = "block";
+        selectFileButton.style.display = "none";
+      };
+      reader.readAsDataURL(selectedFile);
+
       postCreation.style.display = "block";
     }
+  });
+
+  // Handle clear file selection
+  clearFileButton.addEventListener("click", () => {
+    selectedFile = null;
+    fileInput.value = "";
+    previewContainer.style.display = "none";
+    selectFileButton.style.display = "block";
+    postCreation.style.display = "none";
   });
 
   // Handle post upload
@@ -92,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     authSection.style.display = "none";
-    postSection.style.display = "block";
+    postSection.style.display = "flex";  // Change this to 'flex' to match the CSS
 
     // Handle avatar
     if (user.blogs && user.blogs[0] && user.blogs[0].avatar) {
