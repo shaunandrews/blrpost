@@ -39,6 +39,7 @@ button.image {
   color: #fff;
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
 }
 
 .button-group {
@@ -76,6 +77,8 @@ button.image {
 #fileSelection,
 #postCreation {
   display: flex;
+  align-items: center;
+  justify-content: center;
   flex-direction: column;
   flex: 1;
   width: calc(100% - 16px);
@@ -85,13 +88,16 @@ button.image {
 #fileSelection {
   background-color: #f0f0f0;
   border-radius: 8px;
-  align-items: center;
-  justify-content: center;
 }
 
 #postCreation {
   padding: 20px;
   gap: 12px;
+}
+
+#uploadButton {
+  width: 200px;
+  margin-top: 24px;
 }
 
 #fileInput {
@@ -111,8 +117,13 @@ button.image {
 #previewContainer {
   position: relative;
   width: 100;
-  background: red;
-  border: 1px solid blue;
+}
+
+#clipboardOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
 }
 
 #filePreview {
@@ -125,7 +136,7 @@ button.image {
 
 #clearFileButton {
   position: absolute;
-  top: 8px;
+  bottom: 8px;
   right: 8px;
   opacity: 0;
   transition: opacity 0.3s ease;
@@ -147,6 +158,7 @@ button.image {
   padding: 8px 12px;
   border: none;
   resize: none;
+  outline: none;
 }
 
 #loading {
