@@ -7,48 +7,44 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <div id="app">
-      <h1>blrPost</h1>
-      <p>Post screenshots and stuff to Tumblr.</p>
-
-      <div id="authSection">
-        <button id="authButton">Authenticate with Tumblr</button>
-      </div>
-
-      <div id="userInfo" style="display: none">
-        <img id="avatar" alt="User avatar" />
-        <p>Welcome, <span id="username"></span>!</p>
-        <button id="logoutButton">Logout</button>
-
-        <!-- File upload section -->
-        <input
-          type="file"
-          id="fileInput"
-          style="margin-top: 20px"
-          accept="image/*"
-        />
-
-        <!-- This will appear after the file is selected -->
-        <div id="postSection" style="display: none">
-          <textarea
-            id="postText"
-            placeholder="Optional: Add text to include in your post"
-          ></textarea>
-          <button id="uploadButton">Upload Post</button>
+    <div id="postSection" style="display: none">
+      <header>
+        <div id="userInfo">
+          <img id="avatar" alt="User avatar" />
+          <p id="username"></p>
         </div>
+        <button id="logoutButton">Logout</button>
+      </header>
 
-        <!-- Loading indicator -->
-        <div id="loading" style="display: none">Uploading...</div>
-
-        <!-- View your post button (hidden by default) -->
-        <button id="viewPostButton" style="display: none">
-          View your post
-        </button>
+      <!-- File upload section -->
+      <div id="fileSelection">
+        <p>Select a file...</p>
+        <input type="file" id="fileInput" accept="image/*" />
       </div>
 
-      <div id="errorMessage" style="color: red; display: none"></div>
+      <!-- This will appear after the file is selected -->
+      <div id="postCreation" style="display: none">
+        <textarea
+          id="postText"
+          placeholder="Optional: Add text to include in your post"
+        ></textarea>
+        <button id="uploadButton">Upload Post</button>
+      </div>
+
+      <!-- Loading indicator -->
+      <div id="loading" style="display: none">Uploading...</div>
+
+      <!-- View your post button (hidden by default) -->
+      <button id="viewPostButton" style="display: none">View your post</button>
     </div>
 
+    <div id="errorMessage" style="color: red; display: none"></div>
+
+    <div id="authSection">
+      <h1>blrPost</h1>
+      <p>Post screenshots and stuff to Tumblr.</p>
+      <button id="authButton">Authenticate with Tumblr</button>
+    </div>
     <script src="renderer.js"></script>
   </body>
 </html>

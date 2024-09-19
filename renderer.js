@@ -2,14 +2,14 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log("DOM fully loaded and parsed");
   const authButton = document.getElementById("authButton");
   const authSection = document.getElementById("authSection");
-  const userInfo = document.getElementById("userInfo");
+  const postSection = document.getElementById("postSection");
   const avatar = document.getElementById("avatar");
   const username = document.getElementById("username");
   const errorMessage = document.getElementById("errorMessage");
 
   // New variables
   const fileInput = document.getElementById("fileInput");
-  const postSection = document.getElementById("postSection");
+  const postCreation = document.getElementById("postCreation");
   const postText = document.getElementById("postText");
   const uploadButton = document.getElementById("uploadButton");
   const loading = document.getElementById("loading");
@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
   fileInput.addEventListener("change", (event) => {
     selectedFile = event.target.files[0];
     if (selectedFile) {
-      postSection.style.display = "block";
+      postCreation.style.display = "block";
     }
   });
 
@@ -40,18 +40,19 @@ document.addEventListener("DOMContentLoaded", () => {
   // Upload post function
   function uploadPost(file, text) {
     const reader = new FileReader();
-    reader.onload = function(event) {
-      const base64Image = event.target.result.split(',')[1];
+    reader.onload = function (event) {
+      const base64Image = event.target.result.split(",")[1];
       const postData = {
         type: "photo",
         caption: text || "",
-        data64: base64Image
+        data64: base64Image,
       };
 
       loading.style.display = "block";
-      postSection.style.display = "none";
+      postCreation.style.display = "none";
 
-      window.api.uploadPost(postData)
+      window.api
+        .uploadPost(postData)
         .then((response) => {
           loading.style.display = "none";
           if (response.success) {
@@ -59,13 +60,13 @@ document.addEventListener("DOMContentLoaded", () => {
             viewPostButton.style.display = "block";
           } else {
             showError("Failed to upload post: " + response.error);
-            postSection.style.display = "block";
+            postCreation.style.display = "block";
           }
         })
         .catch((error) => {
           loading.style.display = "none";
           showError("Error uploading post: " + error.message);
-          postSection.style.display = "block";
+          postCreation.style.display = "block";
         });
     };
     reader.readAsDataURL(file);
@@ -80,10 +81,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showUserInfo(user) {
     console.log("Showing user info:", JSON.stringify(user, null, 2));
-    if (!authSection || !userInfo || !avatar || !username) {
+    if (!authSection || !postSection || !avatar || !username) {
       console.error("One or more elements not found for showing user info");
       console.log("authSection:", authSection);
-      console.log("userInfo:", userInfo);
+      console.log("postSection:", postSection);
       console.log("avatar:", avatar);
       console.log("username:", username);
       showError("Error displaying user info. Please try again.");
@@ -91,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     authSection.style.display = "none";
-    userInfo.style.display = "block";
+    postSection.style.display = "block";
 
     // Handle avatar
     if (user.blogs && user.blogs[0] && user.blogs[0].avatar) {
@@ -110,11 +111,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showAuthButton() {
     console.log("Showing auth button");
-    if (authSection && userInfo) {
+    if (authSection && postSection) {
       authSection.style.display = "block";
-      userInfo.style.display = "none";
+      postSection.style.display = "none";
     } else {
-      console.error("Auth section or user info element not found");
+      console.error("Auth section or post section element not found");
       showError(
         "Error displaying authentication button. Please refresh the page."
       );
@@ -165,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   window.api.onLogoutSuccess(() => {
-    userInfo.style.display = "none";
+    postSection.style.display = "none";
     authSection.style.display = "block";
     // Clear any displayed user data
     document.getElementById("username").textContent = "";

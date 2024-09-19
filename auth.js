@@ -304,7 +304,9 @@ async function uploadPost(formData) {
             try {
               const parsedData = JSON.parse(data);
               if (parsedData.meta.status === 201 && parsedData.response && parsedData.response.id) {
-                const postUrl = `https://${blogIdentifier}.tumblr.com/post/${parsedData.response.id}`;
+                const postId = parsedData.response.id;
+                const postSlug = parsedData.response.slug || '';
+                const postUrl = `https://${blogIdentifier}.tumblr.com/post/${postId}/${postSlug}`;
                 resolve({ success: true, url: postUrl });
               } else {
                 reject(new Error(parsedData.errors ? parsedData.errors[0].detail : "Upload failed"));

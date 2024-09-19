@@ -10,7 +10,7 @@ import {
 import { fileURLToPath } from "url";
 import { dirname } from "path";
 import fetch from "node-fetch";
-import { logout } from './auth.js';
+import { logout } from "./auth.js";
 
 const store = new Store();
 const __filename = fileURLToPath(import.meta.url);
@@ -19,7 +19,7 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
+    width: 540,
     height: 600,
     webPreferences: {
       nodeIntegration: false,
@@ -29,20 +29,22 @@ function createWindow() {
   });
 
   // Set Content Security Policy
-  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
-    callback({
-      responseHeaders: {
-        ...details.responseHeaders,
-        'Content-Security-Policy': [
-          "default-src 'self' https://*.tumblr.com; " +
-          "script-src 'self' https://*.tumblr.com; " +
-          "style-src 'self' 'unsafe-inline' https://*.tumblr.com; " +
-          "img-src 'self' data: https://*.tumblr.com; " +
-          "connect-src 'self' https://*.tumblr.com;"
-        ]
-      }
-    })
-  });
+  mainWindow.webContents.session.webRequest.onHeadersReceived(
+    (details, callback) => {
+      callback({
+        responseHeaders: {
+          ...details.responseHeaders,
+          "Content-Security-Policy": [
+            "default-src 'self' https://*.tumblr.com; " +
+              "script-src 'self' https://*.tumblr.com; " +
+              "style-src 'self' 'unsafe-inline' https://*.tumblr.com; " +
+              "img-src 'self' data: https://*.tumblr.com; " +
+              "connect-src 'self' https://*.tumblr.com;",
+          ],
+        },
+      });
+    }
+  );
 
   mainWindow.loadFile("index.html");
 
