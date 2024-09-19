@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const urlPreviewContainer = document.getElementById("urlPreviewContainer");
   const urlPreview = document.getElementById("urlPreview");
   const clearUrlButton = document.getElementById("clearUrlButton");
-  const fallbackImagePath = 'assets/fallback-image.png';
+  const fallbackImagePath = "assets/fallback-image.png";
 
   let selectedFile = null;
   let postUrl = "";
@@ -46,21 +46,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle select clipboard button click
   selectClipboardButton.addEventListener("click", () => {
-    window.api.getClipboardContent()
+    window.api
+      .getClipboardContent()
       .then((content) => {
-        if (content.type === 'image') {
+        if (content.type === "image") {
           selectedFile = new File([content.data], "clipboard_image.png", {
             type: "image/png",
           });
           showImagePreview(selectedFile);
-          postText.value = ''; // Clear any existing text
+          postText.value = ""; // Clear any existing text
           hideUrlPreview();
-        } else if (content.type === 'text') {
+        } else if (content.type === "text") {
           selectedFile = null;
           if (isValidUrl(content.data)) {
             selectedUrl = content.data;
             showUrlPreview(selectedUrl);
-            postText.value = '';
+            postText.value = "";
           } else {
             selectedUrl = null;
             postText.value = content.data;
@@ -108,14 +109,16 @@ document.addEventListener("DOMContentLoaded", () => {
     postText.style.display = "block";
 
     // Add mshots preview
-    const mshotsUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(url)}?w=600`;
+    const mshotsUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(
+      url
+    )}?w=600`;
     urlPreviewImage.src = mshotsUrl;
   }
 
   function hideUrlPreview() {
     urlPreviewContainer.style.display = "none";
     selectedUrl = null;
-    urlPreviewImage.src = ''; // Clear the image source
+    urlPreviewImage.src = ""; // Clear the image source
   }
 
   clearUrlButton.addEventListener("click", () => {
@@ -154,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle post upload
   uploadButton.addEventListener("click", () => {
     const textContent = postText.value || "";
-    
+
     if (selectedFile) {
       uploadPost(selectedFile, textContent);
     } else if (selectedUrl) {
@@ -211,7 +214,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "block";
     postCreation.style.display = "none";
 
-    window.api.uploadPost(postData)
+    window.api
+      .uploadPost(postData)
       .then((response) => {
         loading.style.display = "none";
         if (response.success) {
@@ -240,7 +244,8 @@ document.addEventListener("DOMContentLoaded", () => {
     loading.style.display = "block";
     postCreation.style.display = "none";
 
-    window.api.uploadPost(postData)
+    window.api
+      .uploadPost(postData)
       .then((response) => {
         loading.style.display = "none";
         if (response.success) {
