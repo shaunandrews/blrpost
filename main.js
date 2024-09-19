@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, clipboard, nativeImage } from "electron";
 import path from "path";
 import Store from "electron-store";
 import {
@@ -91,6 +91,15 @@ function createWindow() {
     logout();
     mainWindow.webContents.send("logout-success");
   });
+
+  // Handle clipboard image request
+  ipcMain.handle('get-clipboard-image', () => {
+    const image = clipboard.readImage();
+    if (image.isEmpty()) {
+      return null;
+    }
+    return image.toPNG();
+  });
 }
 
 ipcMain.handle("upload-post", async (event, formData) => {
@@ -106,7 +115,27 @@ ipcMain.handle("upload-post", async (event, formData) => {
   }
 });
 
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createWindow();
+
+  // Register other IPC handlers here
+  ipcMain.on("start-auth", () => {
+    authenticate(mainWindow)
+      .then(() => console.log("Manual authentication successful"))
+      .catch((error) => {
+        console.error("Error during manual authentication:", error);
+        mainWindow.webContents.send(
+          "auth-failure",
+          "Error during authentication"
+        );
+      });
+  });
+
+  ipcMain.on("logout", (event) => {
+    logout();
+    mainWindow.webContents.send("logout-success");
+  });
+});
 
 app.on("window-all-closed", function () {
   if (process.platform !== "darwin") app.quit();

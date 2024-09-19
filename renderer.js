@@ -17,6 +17,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const uploadButton = document.getElementById("uploadButton");
   const loading = document.getElementById("loading");
   const viewPostButton = document.getElementById("viewPostButton");
+  const selectClipboardButton = document.getElementById(
+    "selectClipboardButton"
+  );
 
   let selectedFile = null;
   let postUrl = "";
@@ -26,20 +29,43 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput.click();
   });
 
+  // Handle select clipboard button click
+  selectClipboardButton.addEventListener("click", () => {
+    window.api
+      .getClipboardImage()
+      .then((clipboardImage) => {
+        if (clipboardImage) {
+          selectedFile = new File([clipboardImage], "clipboard_image.png", {
+            type: "image/png",
+          });
+          showImagePreview(selectedFile);
+        } else {
+          showError("No image found in clipboard.");
+        }
+      })
+      .catch((error) => {
+        showError("Error accessing clipboard: " + error.message);
+      });
+  });
+
+  // Function to show image preview
+  function showImagePreview(file) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      filePreview.src = e.target.result;
+      previewContainer.style.display = "block";
+      selectFileButton.style.display = "none";
+      selectClipboardButton.style.display = "none";
+      postCreation.style.display = "block";
+    };
+    reader.readAsDataURL(file);
+  }
+
   // Handle file selection
   fileInput.addEventListener("change", (event) => {
     selectedFile = event.target.files[0];
     if (selectedFile) {
-      // Show preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        filePreview.src = e.target.result;
-        previewContainer.style.display = "block";
-        selectFileButton.style.display = "none";
-      };
-      reader.readAsDataURL(selectedFile);
-
-      postCreation.style.display = "block";
+      showImagePreview(selectedFile);
     }
   });
 
@@ -49,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     fileInput.value = "";
     previewContainer.style.display = "none";
     selectFileButton.style.display = "block";
+    selectClipboardButton.style.display = "block";
     postCreation.style.display = "none";
   });
 
@@ -118,7 +145,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     authSection.style.display = "none";
-    postSection.style.display = "flex";  // Change this to 'flex' to match the CSS
+    postSection.style.display = "flex"; // Change this to 'flex' to match the CSS
 
     // Handle avatar
     if (user.blogs && user.blogs[0] && user.blogs[0].avatar) {
