@@ -20,9 +20,24 @@ document.addEventListener("DOMContentLoaded", () => {
   const selectClipboardButton = document.getElementById(
     "selectClipboardButton"
   );
+  const postText = document.getElementById("postText");
+  const urlPreviewContainer = document.getElementById("urlPreviewContainer");
+  const urlPreview = document.getElementById("urlPreview");
+  const clearUrlButton = document.getElementById("clearUrlButton");
+  const fallbackImagePath = 'assets/fallback-image.png';
 
   let selectedFile = null;
   let postUrl = "";
+  let selectedUrl = null;
+
+  function isValidUrl(string) {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   // Handle select file button click
   selectFileButton.addEventListener("click", () => {
@@ -31,16 +46,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handle select clipboard button click
   selectClipboardButton.addEventListener("click", () => {
-    window.api
-      .getClipboardImage()
-      .then((clipboardImage) => {
-        if (clipboardImage) {
-          selectedFile = new File([clipboardImage], "clipboard_image.png", {
+    window.api.getClipboardContent()
+      .then((content) => {
+        if (content.type === 'image') {
+          selectedFile = new File([content.data], "clipboard_image.png", {
             type: "image/png",
           });
           showImagePreview(selectedFile);
+          postText.value = ''; // Clear any existing text
+          hideUrlPreview();
+        } else if (content.type === 'text') {
+          selectedFile = null;
+          if (isValidUrl(content.data)) {
+            selectedUrl = content.data;
+            showUrlPreview(selectedUrl);
+            postText.value = '';
+          } else {
+            selectedUrl = null;
+            postText.value = content.data;
+            showTextPreview();
+          }
         } else {
-          showError("No image found in clipboard.");
+          showError("No image, text, or URL found in clipboard.");
         }
       })
       .catch((error) => {
@@ -57,9 +84,50 @@ document.addEventListener("DOMContentLoaded", () => {
       selectFileButton.style.display = "none";
       selectClipboardButton.style.display = "none";
       postCreation.style.display = "block";
+      postText.style.display = "block";
     };
     reader.readAsDataURL(file);
   }
+
+  // Function to show text preview
+  function showTextPreview() {
+    previewContainer.style.display = "none";
+    selectFileButton.style.display = "none";
+    selectClipboardButton.style.display = "none";
+    postCreation.style.display = "block";
+    postText.style.display = "block";
+  }
+
+  function showUrlPreview(url) {
+    urlPreview.textContent = url;
+    urlPreviewContainer.style.display = "block";
+    previewContainer.style.display = "none";
+    selectFileButton.style.display = "none";
+    selectClipboardButton.style.display = "none";
+    postCreation.style.display = "block";
+    postText.style.display = "block";
+
+    // Add mshots preview
+    const mshotsUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(url)}?w=600`;
+    urlPreviewImage.src = mshotsUrl;
+  }
+
+  function hideUrlPreview() {
+    urlPreviewContainer.style.display = "none";
+    selectedUrl = null;
+    urlPreviewImage.src = ''; // Clear the image source
+  }
+
+  clearUrlButton.addEventListener("click", () => {
+    hideUrlPreview();
+    selectedFile = null;
+    postText.value = "";
+    previewContainer.style.display = "none";
+    selectFileButton.style.display = "block";
+    selectClipboardButton.style.display = "block";
+    postCreation.style.display = "none";
+    postText.style.display = "none";
+  });
 
   // Handle file selection
   fileInput.addEventListener("change", (event) => {
@@ -72,22 +140,30 @@ document.addEventListener("DOMContentLoaded", () => {
   // Handle clear file selection
   clearFileButton.addEventListener("click", () => {
     selectedFile = null;
+    selectedUrl = null;
     fileInput.value = "";
+    postText.value = "";
     previewContainer.style.display = "none";
+    urlPreviewContainer.style.display = "none";
     selectFileButton.style.display = "block";
     selectClipboardButton.style.display = "block";
     postCreation.style.display = "none";
+    postText.style.display = "none";
   });
 
   // Handle post upload
   uploadButton.addEventListener("click", () => {
-    if (!selectedFile) {
-      showError("Please select an image to upload.");
-      return;
-    }
-
     const textContent = postText.value || "";
-    uploadPost(selectedFile, textContent);
+    
+    if (selectedFile) {
+      uploadPost(selectedFile, textContent);
+    } else if (selectedUrl) {
+      uploadLinkPost(selectedUrl, textContent);
+    } else if (textContent) {
+      uploadTextPost(textContent);
+    } else {
+      showError("Please select an image, URL, or enter text to upload.");
+    }
   });
 
   // Upload post function
@@ -123,6 +199,63 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     };
     reader.readAsDataURL(file);
+  }
+
+  // Upload text post function
+  function uploadTextPost(text) {
+    const postData = {
+      type: "text",
+      body: text,
+    };
+
+    loading.style.display = "block";
+    postCreation.style.display = "none";
+
+    window.api.uploadPost(postData)
+      .then((response) => {
+        loading.style.display = "none";
+        if (response.success) {
+          postUrl = response.url;
+          viewPostButton.style.display = "block";
+        } else {
+          showError("Failed to upload post: " + response.error);
+          postCreation.style.display = "block";
+        }
+      })
+      .catch((error) => {
+        loading.style.display = "none";
+        showError("Error uploading post: " + error.message);
+        postCreation.style.display = "block";
+      });
+  }
+
+  // Upload link post function
+  function uploadLinkPost(url, description) {
+    const postData = {
+      type: "link",
+      url: url,
+      description: description,
+    };
+
+    loading.style.display = "block";
+    postCreation.style.display = "none";
+
+    window.api.uploadPost(postData)
+      .then((response) => {
+        loading.style.display = "none";
+        if (response.success) {
+          postUrl = response.url;
+          viewPostButton.style.display = "block";
+        } else {
+          showError("Failed to upload post: " + response.error);
+          postCreation.style.display = "block";
+        }
+      })
+      .catch((error) => {
+        loading.style.display = "none";
+        showError("Error uploading post: " + error.message);
+        postCreation.style.display = "block";
+      });
   }
 
   // Open post in default browser

@@ -21,6 +21,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 540,
     height: 600,
+    frame: false,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -38,8 +39,8 @@ function createWindow() {
             "default-src 'self' https://*.tumblr.com; " +
               "script-src 'self' https://*.tumblr.com; " +
               "style-src 'self' 'unsafe-inline' https://*.tumblr.com; " +
-              "img-src 'self' data: https://*.tumblr.com; " +
-              "connect-src 'self' https://*.tumblr.com;",
+              "img-src 'self' data: https://*.tumblr.com https://*.wp.com file:; " +
+              "connect-src 'self' https://*.tumblr.com https://*.wp.com;",
           ],
         },
       });
@@ -93,12 +94,17 @@ function createWindow() {
   });
 
   // Handle clipboard image request
-  ipcMain.handle('get-clipboard-image', () => {
+  ipcMain.handle("get-clipboard-content", () => {
     const image = clipboard.readImage();
-    if (image.isEmpty()) {
-      return null;
+    const text = clipboard.readText();
+
+    if (!image.isEmpty()) {
+      return { type: "image", data: image.toPNG() };
+    } else if (text) {
+      return { type: "text", data: text };
+    } else {
+      return { type: "empty" };
     }
-    return image.toPNG();
   });
 }
 

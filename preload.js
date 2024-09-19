@@ -13,4 +13,6 @@ contextBridge.exposeInMainWorld('api', {
   logout: () => ipcRenderer.send('logout'),
   onLogoutSuccess: (callback) => ipcRenderer.on('logout-success', () => callback()),
   getClipboardImage: () => ipcRenderer.invoke('get-clipboard-image'),
+  getClipboardContent: () => ipcRenderer.invoke('get-clipboard-content'),
+  fetch: (url, options) => fetch(url, options),
 });
